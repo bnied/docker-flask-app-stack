@@ -7,7 +7,7 @@ function startApp() {
       echo "App already running"
       exit 1
   fi
-  $docker_cmd run --name flask-app -d -cidfile=$app_cid -p 0.0.0.0:8000:8000 $app_image python /app/bin/run --debug
+  $docker_cmd run --name flask-app -d --cidfile=$app_cid -p 0.0.0.0:8000:8000 $app_image python /app/bin/run --debug
 }
 
 
@@ -16,7 +16,7 @@ function stopApp() {
         echo "App stopped"
         exit 0
     fi
-    docker stop $(cat $app_cid)
+    docker stop $(cat $app_cid) && docker rm $app_name
     rm $app_cid
 }
 
