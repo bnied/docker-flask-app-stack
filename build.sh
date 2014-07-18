@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 . config.sh
 while getopts "c" flag
