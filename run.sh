@@ -4,10 +4,10 @@
 
 function startDb() {
   if [ -f $db_cid ]; then
-      echo "db already running"
+      echo "app-db already running"
       exit 1
   fi
-  $docker_cmd run --name flask-db -d --cidfile=$db_cid -p 0.0.0.0:5432:5432 $db_image
+  $docker_cmd run --name app-db -d --cidfile=$db_cid -p 0.0.0.0:5432:5432 $db_image
 }
 
 
@@ -20,32 +20,52 @@ function stopDb() {
     rm $db_cid
 }
 
-function startApp() {
-  if [ -f $app_cid ]; then
-      echo "App already running"
+function startFlaskApp() {
+  if [ -f $flask_app_cid ]; then
+      echo "Flask App already running"
       exit 1
   fi
-  $docker_cmd run --name $app_name --link $db_name:db -d --cidfile=$app_cid -p 0.0.0.0:8000:8000 $app_image python /app/bin/run --debug
+  $docker_cmd run --name $flask_app_name --link $db_name:db -d --cidfile=$flask_app_cid -p 0.0.0.0:8000:8000 $flask_app_image python /app/bin/run --debug
 }
 
 
-function stopApp() {
-    if [ ! -f $app_cid ]; then
-        echo "App stopped"
+function stopFlaskApp() {
+    if [ ! -f $flask_app_cid ]; then
+        echo "Flask App stopped"
         exit 0
     fi
-    docker stop $(cat $app_cid) && docker rm $app_name
-    rm $app_cid
+    docker stop $(cat $flask_app_cid) && docker rm $flask_app_name
+    rm $flask_app_cid
+}
+
+function startNodeApp() {
+  if [ -f $node_app_cid ]; then
+      echo "Node App already running"
+      exit 1
+  fi
+  $docker_cmd run --name $node_app_name --link $db_name:db -d --cidfile=$node_app_cid -p 0.0.0.0:3000:3000 $node_app_image
+}
+
+
+function stopNodeApp() {
+    if [ ! -f $node_app_cid ]; then
+        echo "Node App stopped"
+        exit 0
+    fi
+    docker stop $(cat $node_app_cid) && docker rm $node_app_name
+    rm $node_app_cid
 }
 
 function start() {
     startDb
-    startApp
+    startFlaskApp
+    startNodeApp
 }
 
 function stop() {
     stopDb
-    stopApp
+    stopFlaskApp
+    stopNodeApp
 }
 
 function restart() {
@@ -71,8 +91,10 @@ function usage() {
     echo "          stop        tear down whatever is running"
     echo "          status      list running container types and their ids"
     echo "          restart     Restart the whole shebang"
-    echo "          startApp    Starts up the application only"
-    echo "          stopApp     Stops the application only"
+    echo "          startFlaskApp    Starts up the flask application only"
+    echo "          stopFlaskApp     Stops the flask application only"
+    echo "          startNodeApp    Starts up the node application only"
+    echo "          stopNodeApp     Stops the node application only"
     echo "          startDb     Starts up the database only"
     echo "          stopDb      Stops the database only"
 }
@@ -87,10 +109,14 @@ case $1 in
         status;;
     restart)
         restart;;
-    startApp)
-        startApp;;
-    stopApp)
-        stopApp;;
+    startFlaskApp)
+        startFlaskApp;;
+    stopFlaskApp)
+        stopFlaskApp;;
+    startNodeApp)
+        startNodeApp;;
+    stopNodeApp)
+        stopNodeApp;;
     startDb)
         startDb;;
     stopDb)

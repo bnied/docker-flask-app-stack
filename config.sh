@@ -6,11 +6,14 @@ if [ ! -d $run_dir ]; then
     mkdir $run_dir;
 fi
 
-app_name='flask-app'
-app_image="stack/$app_name"
-app_cid="./$run_dir/$app_name"
+flask_app_name='flask-app'
+flask_app_image="stack/$flask_app_name"
+flask_app_cid="./$run_dir/$flask_app_name"
 
+node_app_name='node-app'
+node_app_image="stack/$node_app_name"
+node_app_cid="./$run_dir/$node_app_name"
 
-db_name='flask-db'
+db_name='app-db'
 db_image="stack/$db_name"
 db_cid="./$run_dir/$db_name"
